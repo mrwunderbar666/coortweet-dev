@@ -1,0 +1,44 @@
+# Ideal Data Structure
+List:
+  Tweets:
+    - created_at
+    - tweet_id
+    - author_id
+    - conversation_id
+    - edit_history_tweets_ids
+    - possibly_sensitive
+    - lang
+    - text
+    - source
+    - in_reply_to_user_id
+    - withheld
+    - retweet_count
+    - reply_count
+    - like_count
+    - quote_count
+    - created_timestamp
+  Referenced:
+    - tweet_id
+    - referenced_tweet_id
+    - type
+  URLs:
+    - tweet_id
+    - url
+    - expanded_url
+    - display_url
+    - title
+    - description
+    - unwound_url
+    - start
+    - end
+  Mentions:
+    - tweet_id
+    - username
+    - id
+    - start
+    - end
+  Hashtags:
+    - tweet_id
+    - tag
+    - start
+    - end

@@ -1,0 +1,18 @@
+Package: CooRTweet
+Version: 1.1
+Date: 2023-04-07
+Type: Package
+Title: DEV VERSION An R package to detect coordinated networks on Social Media
+Description: The packages detects a variety of coordinated actions on Twitter and outputs the network of coordinated users along with related information.
+Author: Nicola Righetti
+Maintainer: Nicola Righetti <nicola.righetti@univie.ac.at>
+URL: https://github.com/nicolarighetti/CooRTnet
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.2.3
+Imports:
+  data.table,
+  tidytable,
+  RcppSimdJson,
+  RcppSimdJson
