@@ -15,4 +15,4 @@ Imports:
   data.table,
   tidytable,
   RcppSimdJson,
-  RcppSimdJson
+  lubridate
