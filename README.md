@@ -1,5 +1,25 @@
 # CooRTweet (DEV VERSION)
 
+## How to use new functionality
+
+```r
+# load data
+
+raw <- load_tweets_json('path/to/data/with/jsonfiles')
+users <- load_twitter_users_json('path/to/data/with/jsonfiles')
+
+# preprocess (unnest) data
+tweets <- preprocess_tweets(raw)
+users <- preprocess_twitter_users(users)
+
+# reshape data
+retweets <- reshape_tweets(tweets, intent = "retweets")
+
+# detect coordinated tweets
+result <- detect_coordinated_groups(retweets, time_window = 60, min_repetition = 10)
+```
+
+
 #### (Beta version)
 
 Coordinated behavior is a relevant social media strategy employed for political astroturfing (Keller et al., 2020), the spread of inappropriate content online (Giglietto et al., 2020), and activism. Software for academic research and investigative journalism has been developed in the last few years to detect coordinated behavior, such as the [CooRnet R package](https://github.com/fabiogiglietto/CooRnet) (Giglietto, Righetti, Rossi, 2020), which detects Coordinated Link Sharing Behavior (CLSB) and Coordinated Image Sharing on Facebook and Instagram ([CooRnet website](http://coornet.org)), and the [Coordination Network Toolkit](https://github.com/QUT-Digital-Observatory/coordination-network-toolkit/blob/main/README.md) by Timothy Graham (Graham, QUT Digital Observatory, 2020), a command line tool for studying coordination networks in Twitter and other social media data.
