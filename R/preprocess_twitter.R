@@ -33,7 +33,7 @@ preprocess_tweets <- function(tweets) {
     Tweets_cols <- c(
         "created_at", "tweet_id", "author_id", "conversation_id",
         "edit_history_tweet_ids", "possibly_sensitive", "lang", "text",
-        "source", "in_reply_to_user_id", "withheld",
+        "in_reply_to_user_id", "withheld",
         "public_metrics_retweet_count", "public_metrics_reply_count",
         "public_metrics_like_count", "public_metrics_quote_count"
     )
