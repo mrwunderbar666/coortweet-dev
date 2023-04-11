@@ -2,6 +2,18 @@
 
 ## How to use new functionality
 
+You might need to load the functions in this package manually:
+
+```r
+library(roxygen2)
+library(devtools)
+
+roxygen2::roxygenise()
+load_all()
+```
+
+### Load Raw Data and Preprocess
+
 ```r
 # load data
 
@@ -11,7 +23,11 @@ users <- load_twitter_users_json('path/to/data/with/jsonfiles')
 # preprocess (unnest) data
 tweets <- preprocess_tweets(raw)
 users <- preprocess_twitter_users(users)
+```
 
+### Coordination by Retweets
+
+```r
 # reshape data
 retweets <- reshape_tweets(tweets, intent = "retweets")
 
@@ -19,6 +35,27 @@ retweets <- reshape_tweets(tweets, intent = "retweets")
 result <- detect_coordinated_groups(retweets, time_window = 60, min_repetition = 10)
 ```
 
+### Coordination by Hashtags
+
+```r
+hashtags <- reshape_tweets(tweets, intent = "hashtags")
+result <- detect_coordinated_groups(hashtags, time_window = 60, min_repetition = 10)
+```
+
+### Coordination by Link Sharing
+
+```r
+urls <- reshape_tweets(tweets, intent = "urls")
+result <- detect_coordinated_groups(urls, time_window = 60, min_repetition = 10)
+```
+
+
+### Coordination by Link Sharing (considering only the domain)
+
+```r
+urls <- reshape_tweets(tweets, intent = "urls_domain")
+result <- detect_coordinated_groups(urls, time_window = 60, min_repetition = 10)
+```
 
 #### (Beta version)
 
