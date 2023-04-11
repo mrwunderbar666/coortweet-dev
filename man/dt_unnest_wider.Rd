@@ -11,7 +11,9 @@ dt_unnest_wider(dt, columns, keep = FALSE, simplify = TRUE)
 
 \item{columns}{the name(s) of the column(s) to be unnested (as string)}
 
-\item{keep}{Defaults to TRUE. Keep the column to be unnested.}
+\item{keep}{Defaults to FALSE. Keep the column to be unnested.}
+
+\item{simplify}{Defaults to TRUE. Try to simplify resulting columns}
 }
 \description{
 Utility function for data.table.

@@ -5,10 +5,11 @@
 #' @param tweets a data.table with the (nested) columns: "entities", "public_metrics", "tweet_id", "created_at"
 #'
 #' @return a list with 5 data.tables: tweets (contains all tweets and their meta-data), referenced (information on referenced tweets), urls (all urls mentioned in tweets), mentions (other users mentioned in tweets), hashtags (hashtags mentioned in tweets)
-#' 
+#'
 #' @import data.table
 #' @import tidytable
 #' @importFrom lubridate as_datetime
+#' @importFrom stringi stri_split_fixed
 #'
 #' @export
 #'
@@ -71,7 +72,12 @@ preprocess_tweets <- function(tweets) {
 
     URLs <- data.table::as.data.table(URLs[, ..URLs_cols])
 
-    data.table::setindex(URLs, tweet_id)
+    # extract domain names
+    URLs[, domain := gsub("https?://", "", expanded_url)]
+    URLs[, domain := stri_split_fixed(domain, "/", n = 2, simplify = TRUE)[, 1]]
+
+    data.table::setindex(URLs, tweet_id, domain, expanded_url)
+
 
     # Construct data.table holding all users mentioned in tweets
     Mentions <- tidytable::unnest(entities, entities_mentions)
@@ -106,9 +112,9 @@ preprocess_tweets <- function(tweets) {
 #' Reformat nested twitter userdata (retrieved from Twitter v2 API); spreads out columns and reformats nested data.frame (data.table) to long format
 #'
 #' @param users a data.table with unformatted (nested user data)
-#' 
+#'
 #' @return a data.table with reformatted user data
-#' 
+#'
 #' @import data.table
 #' @import tidytable
 #'
@@ -151,6 +157,10 @@ preprocess_twitter_users <- function(users) {
     urls <- urls[, ..urls_cols]
     data.table::setnames(urls, urls_cols, c("user_id", "expanded_url", "display_url", "url_start", "url_end"))
 
+    # extract domain name
+    tmp_urls <- urls$expanded_url
+    tmp_urls <- gsub("https?://", "", tmp_urls)
+
     users <- urls[users, on = "user_id"]
     users[, entities := NULL]
 
@@ -173,6 +183,7 @@ preprocess_twitter_users <- function(users) {
 #' @param keep Defaults to FALSE. Keep the column to be unnested.
 #' @param simplify Defaults to TRUE. Try to simplify resulting columns
 #' @import data.table
+#' @importFrom data.table ':='
 #'
 
 

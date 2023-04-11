@@ -4,7 +4,10 @@
 \alias{reshape_tweets}
 \title{reshape_tweets}
 \usage{
-reshape_tweets(tweets, intent = c("retweets", "hashtags", "urls"))
+reshape_tweets(
+  tweets,
+  intent = c("retweets", "hashtags", "urls", "urls_domains")
+)
 }
 \arguments{
 \item{tweets}{a pre-processed list of twitter data (output of preprocess_twitter())}

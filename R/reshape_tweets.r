@@ -1,12 +1,12 @@
 #' reshape_tweets
 #'
 #' Reshape twitter data for coordination detection
-#' 
+#'
 #' @param tweets a pre-processed list of twitter data (output of preprocess_twitter())
 #' @param intent the desired intent for analysis.
-#' 
+#'
 #' @return a reshaped data.table
-#' 
+#'
 #' @import data.table
 #'
 #' @export
@@ -15,7 +15,7 @@
 
 reshape_tweets <- function(
     tweets,
-    intent = c("retweets", "hashtags", "urls")) {
+    intent = c("retweets", "hashtags", "urls", "urls_domains")) {
     if (!inherits(tweets, "list")) {
         stop("Provided data probably not preprocessed yet.")
     }
@@ -64,7 +64,67 @@ reshape_tweets <- function(
         data.table::setindex(retweets, object_id, id_user)
 
         return(retweets)
-    } else {
+    } else if (intent == "hashtags") {
+      # Mapping overview
+      # hashtag -> object_id
+      # author_id -> id_user
+      # tweet_id -> content_id:
+      # created_timestamp -> timestamp_share
+
+      # join meta data with hashtags table
+      hashtags <- tweets$tweets[tweets$hashtags, on = "tweet_id"]
+
+      tweet_cols <- c("tag", "author_id", "tweet_id", "created_timestamp")
+      hashtags <- hashtags[, ..tweet_cols]
+
+      data.table::setnames(hashtags, tweet_cols, output_cols)
+      data.table::setindex(hashtags, object_id, id_user)
+
+      return(hashtags)
+    } else if (intent == "urls") {
+      # Mapping overview
+      # expanded_url -> object_id
+      # author_id -> id_user
+      # tweet_id -> content_id:
+      # created_timestamp -> timestamp_share
+
+      # remove Twitter's internal URLs
+      filt <- startsWith(tweets$urls$expanded_url, "https://twitter.com")
+      urls <- tweets$urls[!filt]
+
+      # join meta data with urls table
+      urls <- tweets$tweets[urls, on = "tweet_id"]
+
+      tweet_cols <- c("expanded_url", "author_id", "tweet_id", "created_timestamp")
+      urls <- urls[, ..tweet_cols]
+
+      data.table::setnames(urls, tweet_cols, output_cols)
+      data.table::setindex(urls, object_id, id_user)
+
+      return(urls)
+    } else if (intent == "urls_domains") {
+      # Mapping overview
+      # domain -> object_id
+      # author_id -> id_user
+      # tweet_id -> content_id:
+      # created_timestamp -> timestamp_share
+
+      # remove Twitter's internal URLs
+      filt <- startsWith(tweets$urls$expanded_url, "https://twitter.com")
+      domains <- tweets$urls[!filt]
+
+      # join meta data with urls table
+      domains <- tweets$tweets[domains, on = "tweet_id"]
+
+      tweet_cols <- c("domain", "author_id", "tweet_id", "created_timestamp")
+      domains <- domains[, ..tweet_cols]
+
+      data.table::setnames(domains, tweet_cols, output_cols)
+      data.table::setindex(domains, object_id, id_user)
+
+      return(domains)
+    }
+    else {
         .NotYetImplemented()
     }
 }
