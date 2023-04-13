@@ -25,6 +25,10 @@ tweets <- preprocess_tweets(raw)
 users <- preprocess_twitter_users(users)
 ```
 
+The resulting `tweets` is a named list, where each item is a `data.table`. The five `data.table`s are: "tweets", "referenced", "urls", "mentions", and "hashtags". This keeps the data sorted and avoids redundant rows.
+
+To access the tweets you can simply use `tweets$tweets` and view your dataset.
+
 ### Coordination by Retweets
 
 ```r
@@ -56,6 +60,33 @@ result <- detect_coordinated_groups(urls, time_window = 60, min_repetition = 10)
 urls <- reshape_tweets(tweets, intent = "urls_domain")
 result <- detect_coordinated_groups(urls, time_window = 60, min_repetition = 10)
 ```
+
+### Generate a network
+
+We provide a utility function to transform the `result` to an [`igraph`](https://r.igraph.org/) object for further analysis. In this example, we want to investigate the coordinated content, and how they are connected.
+
+```r
+coord_graph <- generate_network(result, intent = "objects")
+
+library(igraph)
+
+# E.g., get the degree of each node for filtering
+igraph::V(coord_graph)$degree <- igraph::degree(coord_graph)
+
+# Or we can run a community detection algorithm
+igraph::V(coord_graph)$cluster <- igraph::cluster_louvain(coord_graph)$membership
+```
+
+Then, we can join the graph back to the original `data.table`, with additional information, such as the cluster for each content:
+
+```r
+dt <- data.table(tweet_id=V(coord_graph)$name,
+                cluster=V(coord_graph)$cluster,
+                degree=V(coord_graph)$degree)
+
+dt_joined <- tweets$tweets[dt, on = "tweet_id"]
+```
+
 
 #### (Beta version)
 
