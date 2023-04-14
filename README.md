@@ -86,7 +86,7 @@ If you are interested in the user statistics, you can pass `result` into `user_s
 summary_users <- user_stats(result)
 ```
 
-It provides summary statistics for each user that participated in coordinated behaviour: total coordinted posts shared, and average time delta. High number of posts shared and low average time delta are indicators for highly coordinated (and potentially automated) user behaviour.
+It provides summary statistics for each user that participated in coordinated behaviour: total coordinated posts shared, and average time delta. High number of posts shared and low average time delta are indicators for highly coordinated (and potentially automated) user behaviour.
 
 You can rejoin these summary statistics with the original data as follows (using `data.table` syntax):
 
