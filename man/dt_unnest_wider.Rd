@@ -17,7 +17,7 @@ dt_unnest_wider(dt, columns, keep = FALSE, simplify = TRUE)
 }
 \description{
 Utility function for data.table.
-Unnest a column into wide format. Takes the first row as reference!
+Unnest a column into wide format. Takes the first 1000 rows as reference!
 Tries to emulate the functionality of tidyr::unnest_wider()
 }
 \details{
