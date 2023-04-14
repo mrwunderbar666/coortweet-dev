@@ -61,6 +61,42 @@ urls <- reshape_tweets(tweets, intent = "urls_domain")
 result <- detect_coordinated_groups(urls, time_window = 60, min_repetition = 10)
 ```
 
+### Get summaries of results
+
+There are two functions that give summaries of the `result` data: `group_stats()` and `user_stats()`. 
+
+To get insights on the coordinated content (groups), use `group_stats()`
+
+```r
+summary_groups <- group_stats(result)
+```
+
+It returns a `data.table` which shows the group statistics for total count of unique users, total posts in per group, and average time delta per group. If your group analysis is focused on retweets, you can join the data back as follows:
+
+```r
+# rename tweet column
+setnames(summary_groups, "object_id", "tweet_id")
+summary_groups <- tweets$tweets[summary_groups, on = "tweet_id"]
+```
+
+If you are interested in the user statistics, you can pass `result` into `user_stats()`
+
+```r
+summary_users <- user_stats(result)
+```
+
+It provides summary statistics for each user that participated in coordinated behaviour: total coordinted posts shared, and average time delta. High number of posts shared and low average time delta are indicators for highly coordinated (and potentially automated) user behaviour.
+
+You can rejoin these summary statistics with the original data as follows (using `data.table` syntax):
+
+```r
+# rename user column
+setnames(summary_users, "id_user", "user_id")
+
+# join with pre-processed user data
+summary_users <- users[summary_users, on = "user_id"]
+```
+
 ### Generate a network
 
 We provide a utility function to transform the `result` to an [`igraph`](https://r.igraph.org/) object for further analysis. In this example, we want to investigate the coordinated content, and how they are connected.
