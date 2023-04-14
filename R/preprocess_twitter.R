@@ -159,8 +159,8 @@ preprocess_twitter_users <- function(users) {
     data.table::setnames(urls, urls_cols, c("user_id", "expanded_url", "display_url", "url_start", "url_end"))
 
     # extract domain name
-    tmp_urls <- urls$expanded_url
-    tmp_urls <- gsub("https?://", "", tmp_urls)
+    urls[, domain := gsub("https?://", "", expanded_url)]
+    urls[, domain := stri_split_fixed(domain, "/", n = 2, simplify = TRUE)[, 1]]
 
     users <- urls[users, on = "user_id"]
     users[, entities := NULL]
@@ -174,7 +174,7 @@ preprocess_twitter_users <- function(users) {
 #' dt_unnest_wider
 #'
 #' Utility function for data.table.
-#' Unnest a column into wide format. Takes the first row as reference!
+#' Unnest a column into wide format. Takes the first 1000 rows as reference!
 #' Tries to emulate the functionality of tidyr::unnest_wider()
 #'
 #' Current implementation probably very slow.
@@ -196,7 +196,15 @@ dt_unnest_wider <- function(dt,
     data.table::alloc.col(dt)
 
     for (colname in columns) {
-        cols <- names(dt[[colname]][[1]])
+        # how many rows to scan
+        max_rows <- 1000
+        if (nrow(dt) < 1000) {
+            max_rows <- nrow(dt)
+        }
+        cols <- character()
+        for (i in 1:max_rows) {
+            cols <- unique(c(cols, names(dt[[colname]][[i]])))
+        }
 
         for (subcol in cols) {
             new_col_name <- paste(colname, subcol, sep = "_")
