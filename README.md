@@ -74,6 +74,7 @@ summary_groups <- group_stats(result)
 It returns a `data.table` which shows the group statistics for total count of unique users, total posts in per group, and average time delta per group. If your group analysis is focused on retweets, you can join the data back as follows:
 
 ```r
+library(data.table)
 # rename tweet column
 setnames(summary_groups, "object_id", "tweet_id")
 summary_groups <- tweets$tweets[summary_groups, on = "tweet_id"]
@@ -90,6 +91,7 @@ It provides summary statistics for each user that participated in coordinated be
 You can rejoin these summary statistics with the original data as follows (using `data.table` syntax):
 
 ```r
+library(data.table)
 # rename user column
 setnames(summary_users, "id_user", "user_id")
 
@@ -116,6 +118,7 @@ igraph::V(coord_graph)$cluster <- igraph::cluster_louvain(coord_graph)$membershi
 Then, we can join the graph back to the original `data.table`, with additional information, such as the cluster for each content:
 
 ```r
+library(data.table)
 dt <- data.table(tweet_id=V(coord_graph)$name,
                 cluster=V(coord_graph)$cluster,
                 degree=V(coord_graph)$degree)

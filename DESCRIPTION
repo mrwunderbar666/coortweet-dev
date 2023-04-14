@@ -15,4 +15,6 @@ Imports:
   data.table,
   tidytable,
   RcppSimdJson,
-  lubridate
+  lubridate,
+  igraph,
+  stringi
