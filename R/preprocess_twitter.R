@@ -30,9 +30,10 @@ preprocess_tweets <- function(tweets) {
     tweets <- dt_unnest_wider(tweets, c("public_metrics"))
 
     # Construct the main data.table containing all tweets and their meta-data
+    # implicitly dropped columns: "edit_history_tweet_ids"
     Tweets_cols <- c(
         "created_at", "tweet_id", "author_id", "conversation_id",
-        "edit_history_tweet_ids", "possibly_sensitive", "lang", "text",
+        "possibly_sensitive", "lang", "text",
         "in_reply_to_user_id", "withheld",
         "public_metrics_retweet_count", "public_metrics_reply_count",
         "public_metrics_like_count", "public_metrics_quote_count"
