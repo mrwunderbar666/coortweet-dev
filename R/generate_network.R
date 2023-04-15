@@ -63,8 +63,9 @@ generate_network <- function(x, intent = c("users", "content", "objects")) {
 
     coord_graph <- igraph::graph_from_adjacency_matrix(
         projected_adjacency_matrix,
-        mode = "undirected",
-        weighted = TRUE
+        mode = "upper",
+        weighted = TRUE,
+        diag = FALSE
     )
 
     return(coord_graph)
