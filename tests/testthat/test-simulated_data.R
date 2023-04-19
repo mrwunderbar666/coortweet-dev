@@ -19,7 +19,7 @@ sim_test <- function(
     simulated_result <- simulated_result[, coordinated := NULL]
 
 
-  result <- detect_coordinated_groups(sim[[1]], time_window = 10, min_repetition = 3)
+  result <- detect_coordinated_groups(sim[[1]], time_window = time_window, min_repetition = min_repetition)
 
 
   result_stats <- group_stats(result)
