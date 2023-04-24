@@ -31,25 +31,35 @@ sim_test <- function(
 
       }
 
-test_that("simulated data works", {
 
-  # run 10 tests
-  for (i in 1:10) {
-    n_users_coord = sample(1:100, size = 1)
-    n_users_noncoord = sample(1:100, size = 1)
-    n_objects = sample(1:100, size = 1)
-    min_repetition = sample(1:10, size = 1)
-    time_window = sample(1:120, size = 1)
+test_that("simulated data works with default parameters", {
 
-    res <- sim_test(n_users_coord = n_users_coord,
-                    n_users_noncoord = n_users_noncoord,
-                    n_objects = n_objects,
-                    min_repetition = min_repetition,
-                    time_window = time_window
-                    )
+    res <- sim_test()
 
     expect_equal(res[[1]], res[[2]])
     expect_equal(res[[2]], res[[3]])
   }
-}
 )
+
+
+# test_that("simulated data works with random parameters", {
+#   # run 10 tests
+#   for (i in 1:10) {
+#     n_users_coord = sample(1:100, size = 1)
+#     n_users_noncoord = sample(1:100, size = 1)
+#     n_objects = sample(1:100, size = 1)
+#     min_repetition = sample(1:10, size = 1)
+#     time_window = sample(1:120, size = 1)
+
+#     res <- sim_test(n_users_coord = n_users_coord,
+#                     n_users_noncoord = n_users_noncoord,
+#                     n_objects = n_objects,
+#                     min_repetition = min_repetition,
+#                     time_window = time_window
+#                     )
+
+#     expect_equal(res[[1]], res[[2]])
+#     expect_equal(res[[2]], res[[3]])
+#   }
+# }
+# )

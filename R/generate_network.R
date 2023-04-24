@@ -56,7 +56,7 @@ generate_network <- function(x, intent = c("users", "content", "objects")) {
     colnames(incidence_matrix) <- levels(df[, object_id])
 
     if (intent == "objects") {
-        projected_adjacency_matrix <- Matrix::tcrossprod(t(incidence_matrix))
+        projected_adjacency_matrix <- Matrix::crossprod(incidence_matrix)
     } else {
         projected_adjacency_matrix <- Matrix::tcrossprod(incidence_matrix)
     }
