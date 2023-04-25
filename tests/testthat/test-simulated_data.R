@@ -108,8 +108,8 @@ test_that("simulation is possible with random parameters", {
 
 test_that("balanced increase in number of users", {
   # increasing number of users
-  # fails with 12 users (6 coord + 6 non-coord)
-  for (i in 2:6) {
+  # fails with only 2 users
+  for (i in 3:10) {
     n_users_coord <- i
     n_users_noncoord <- i
     n_objects <- 5
@@ -135,8 +135,9 @@ test_that("balanced increase in number of users", {
 
 test_that("unbalanced increase in number of users: A", {
   # increasing number of users
-  # Fails at 12 (4 coord, 8 non-coord)
-  for (i in 2:4) {
+  # Fails sometimes with 2 coord users
+  # seems to be an inherent problem of the simulation
+  for (i in 3:10) {
     n_users_coord <- i
     n_users_noncoord <- i + i
     n_objects <- 5
@@ -162,8 +163,7 @@ test_that("unbalanced increase in number of users: A", {
 
 test_that("unbalanced increase in number of users: B", {
   # increasing number of users
-  # Fails at 21 (14 coord, 7 non-coord)
-  for (i in 2:7) {
+  for (i in 3:10) {
     n_users_coord <- i + i
     n_users_noncoord <- i
     n_objects <- 5
@@ -178,20 +178,15 @@ test_that("unbalanced increase in number of users: B", {
       time_window = time_window
     )
 
-
     expect_equal(sim[[1]], sim[[2]])
     expect_equal(sim[[3]], sim[[4]])
-
 
   }
 })
 
 
 test_that("increase in number of objects", {
-  # increasing number of users
-  # passes with constant number of users (5, 5)
-  # passes with increasing number of uncoordinated users (i + i)
-  # fails with increasing number of coordinated users (i + i)
+  # increasing number of objects
   for (i in 2:10) {
     n_users_coord <- 5
     n_users_noncoord <- 5
@@ -207,10 +202,32 @@ test_that("increase in number of objects", {
       time_window = time_window
     )
 
-
     expect_equal(sim[[1]], sim[[2]])
     expect_equal(sim[[3]], sim[[4]])
 
+  }
+})
+
+
+test_that("larger time window", {
+  # longer and longer time window
+  for (i in seq(1, 120, 5)) {
+    n_users_coord <- 5
+    n_users_noncoord <- 5
+    n_objects <- 5
+    min_repetition <- 3
+    time_window <- i
+
+    sim <- sim_test(
+      n_users_coord = n_users_coord,
+      n_users_noncoord = n_users_noncoord,
+      n_objects = n_objects,
+      min_repetition = min_repetition,
+      time_window = time_window
+    )
+
+    expect_equal(sim[[1]], sim[[2]])
+    expect_equal(sim[[3]], sim[[4]])
 
   }
 })

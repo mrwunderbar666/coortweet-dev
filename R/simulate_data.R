@@ -24,6 +24,12 @@ simulate_data <- function(
     time_window = 10) {
     # create sets of IDs and timestamps for both coordianted and non-coordinated users ---------------------------
 
+    # TODO: assert that parameters are valid
+    # minimum number of users: 2
+    # min repetition: 1
+    # min time_window: 1
+    # min n_objects: 1
+
     # user_IDs ----
 
     # Create a set of user_IDs of length n_users_coord + n_user_non_coord
@@ -53,21 +59,21 @@ simulate_data <- function(
 
     # timestamps ----
 
-    # Create a set of timestamps of length 1 week
+    # Choose a random starting date for the simulation
     start_date <- as.Date(sample(as.Date("2000-01-01"):as.Date("2020-12-31"), 1), origin = "1970-01-01")
-    end_date <- start_date + 7
-    timestamps <- as.numeric(seq.POSIXt(from = as.POSIXct(start_date), to = as.POSIXct(end_date), by = "1 sec"))
-
+    # the first coordinated timestamp is at t0
+    # all subsequent timestamps are counted from here
+    t0 <- as.numeric(as.POSIXct(start_date))
 
     # Coordinated Behavior - Main structure ---------------------------------------------------------------------------------------
 
     # symmetric matrix of size n = n_users_coord and names in user_IDs_coord
-    # populated with random integers with minimum value min_repetition representing the coordinated shares
     coord_matrix <- matrix(0,
         nrow = n_users_coord, ncol = n_users_coord,
         dimnames = list(user_IDs_coord, user_IDs_coord)
     )
 
+    # Repetitions sampled with Poisson distribution (which has 0 as highest) + min_repetition
     coord_matrix[upper.tri(coord_matrix)] <- rpois(sum(upper.tri(coord_matrix)), 1) + min_repetition
 
     # to data.frame
@@ -86,15 +92,13 @@ simulate_data <- function(
     # Non-Coordinated Behavior - Main structure ----------------------------------------------------------------------------------
 
     # Use the same object_IDs  as above
-    # Use the same range_time set as before
-
     # symmetric matrix of size n = n_users_noncoord and names in user_IDs_noncoord
     noncoord_matrix <- matrix(0,
         nrow = n_users_noncoord, ncol = n_users_noncoord,
         dimnames = list(user_IDs_noncoord, user_IDs_noncoord)
     )
 
-    # rather have a sample from a poisson distribution
+    # number of repeatet tweets sampled with a poisson distribution
     noncoord_matrix[upper.tri(noncoord_matrix)] <- rpois(sum(upper.tri(noncoord_matrix)), 2) + 1
 
     # to data.frame
@@ -112,28 +116,16 @@ simulate_data <- function(
 
     # Timestamps -------------------------------------------------------------------------------------------------
 
-    # there are 604801 timestamps in the set (should be enough for most cases)
-
-    # reserve the first third to coordinated shares
-    timestamps_coord <- timestamps[1:length(timestamps) / 3]
-
-    # the remaining ones to non-coordinated shares
-    timestamps_noncoord <- setdiff(timestamps, timestamps_coord)
-    # also prune the timestamps that might cause any overlapping with the coordinated timestamps and create unwanted links
-    timestamps_noncoord <- timestamps_noncoord[time_window:length(timestamps_noncoord)]
-
-
     # assign coordinated timestamps:
     # extract timestamps from the timestamps_coord set using systematic sampling where the
     # sampling interval is higher than time_interval, to avoid unplanned links between users
     # assing the sampled timestamp to users' A shares,
     # then assign to users' B shares a timestamps equal to the A interval + noise lower than time_window
 
-    sampling_interval <- time_window + 1 # the sampling interval is equal to time_window + n to avoid overlaps
-    indices <- seq(from = 1, to = length(timestamps_coord), by = sampling_interval) # generate the indices
-    # get a random sample from the indices
-    indices <- sample(indices, size = nrow(df_coord))
-    df_coord$share_time_A <- timestamps_coord[indices] # extract the sampled values and assign to the first set of shares
+    sampling_interval <- (2*time_window) + 1 # the sampling interval is more than 2x time_window to avoid overlaps
+
+    # start at t0 and then generate timestamps in the interval set above
+    df_coord$share_time_A <- seq(from = t0, by = sampling_interval, length.out = nrow(df_coord))
 
     # add share time to B adding number of seconds < time_interval
     delta <- sample(0:time_window, nrow(df_coord), replace = TRUE)
@@ -145,16 +137,18 @@ simulate_data <- function(
     df_coord$coordinated <- as.logical("TRUE")
 
     # non-coordinated timestamps:
-    # extract timestamps from coordinated timestamp set and with intervals exceeding time_window)
-
-    sampling_interval <- time_window * 3 # the sampling interval is equal to 3*time_window
-    indices <- seq(from = 1, to = length(timestamps_noncoord), by = sampling_interval) # generate the indices
-    # maybe is better to sample these randomly
-    indices <- sample(indices, size = nrow(df_noncoord))
-    df_noncoord$share_time_A <- timestamps_noncoord[indices]
-
-    # the noise is equal to 1 + time_window + noise [0-time_window] and ensure the difference between timestamps is > time_window
+    # users could share the same content with an arbitrary time_delta
+    # it has to be higher than time_window, so we roughly make it twice as large
+    # minimum is time_window + 1, maximum is 2x time_window + 1 
     noise <- 1 + time_window + sample.int(time_window, nrow(df_noncoord), replace = TRUE)
+    # the sampling interval is needs to be larger than the noise
+    sampling_interval <- max(noise) * 2 
+
+    # extract timestamps from coordinated timestamp set and with intervals exceeding time_window
+    # Uncoordinated users start their time stamps at the last timestamp of the coordinated users
+    t1 <- max(df_coord$share_time_B) + sampling_interval
+    # now we sample timestamps for user A with a larger interval than coordinated users
+    df_noncoord$share_time_A <- seq(from = t1, by = sampling_interval, length.out = nrow(df_noncoord))
     df_noncoord$share_time_B <- df_noncoord$share_time_A + noise
 
     df_noncoord$delta <- abs(df_noncoord$share_time_A - df_noncoord$share_time_B)
@@ -164,7 +158,7 @@ simulate_data <- function(
 
     output_table <- rbind(df_coord, df_noncoord)
 
-    # shares IDs -------------------------------------------------------------------------------------------------
+    # shares IDs ----------------------------------------------------------------------
 
     total_id_needed <- nrow(output_table) * 2
     share_ids <- generate_random_strings(n = total_id_needed)
@@ -178,8 +172,12 @@ simulate_data <- function(
     output_table <- output_table[, c("object_ID", "share_id_A", "share_id_B", "delta", "user_X", "user_Y", "coordinated", "share_time_A", "share_time_B")]
     colnames(output_table) <- c("object_id", "content_id", "content_id_y", "time_delta", "id_user", "id_user_y", "coordinated", "share_time_A", "share_time_B")
 
+    # emergency check in case simulated data contains errors
+    if (any(is.na(output_table))) {
+        stop('simulated data contains NAs!')
+    }
 
-    # Input data  ------------------------------------------------------------------------------------------------
+    # Input data  ----------------------------------------------------------------------
     # (Created by reshaping the output_table)
     input_dataset <-
         unique(data.frame(
