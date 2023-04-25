@@ -12,7 +12,7 @@
 #' and the output table of the same detect_coordinated_groups function and columns: `object_id`, `id_user`, `id_user_y`, `content_id`, `content_id_y`, `time_delta`.
 #'
 #' @importFrom stringi stri_rand_strings
-#' @importFrom stats, na.omit rpois
+#' @importFrom stats na.omit rpois
 #'
 #' @export
 #'
@@ -117,8 +117,7 @@ simulate_data <- function(
 
     # Timestamps -------------------------------------------------------------------------------------------------
 
-    # assign coordinated timestamps:
-    # extract timestamps from the timestamps_coord set using systematic sampling where the
+    # assign coordinated timestamps using systematic sampling where the
     # sampling interval is higher than time_interval, to avoid unplanned links between users
     # assing the sampled timestamp to users' A shares,
     # then assign to users' B shares a timestamps equal to the A interval + noise lower than time_window
