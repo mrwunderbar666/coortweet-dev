@@ -14,28 +14,41 @@ sim_test <- function(n_users_coord = 5,
     time_window = time_window
   )
 
-  simulated_result <- data.table(sim[[2]])
-  # test the minimum value of uncoordinated time_deltas
-  delta_uncoord_min <- min(simulated_result[simulated_result$coordinated == FALSE, ]$time_delta)
-  testthat::expect_gt(delta_uncoord_min, time_window)
+    simulated_result <- data.table(sim[[2]])
+    # test the minimum value of uncoordinated time_deltas
+    delta_uncoord_min <- min(simulated_result[simulated_result$coordinated == FALSE, ]$time_delta)
+    testthat::expect_gt(delta_uncoord_min, time_window)
 
-  # test the maximum value of coordinated time_deltas
-  delta_coord_max <- max(simulated_result[simulated_result$coordinated == TRUE, ]$time_delta)
-  testthat::expect_lte(delta_coord_max, time_window)
+    # test number of coordinated users
+    users_coord <- unique(c(simulated_result[simulated_result$coordinated == TRUE, ]$id_user,
+                            simulated_result[simulated_result$coordinated == TRUE, ]$id_user_y))
 
-  simulated_result <- simulated_result[coordinated == TRUE]
-  simulated_result <- simulated_result[, coordinated := NULL]
+    testthat::expect_equal(length(users_coord), n_users_coord)
 
-  result <- detect_coordinated_groups(sim[[1]],
-    time_window = time_window,
-    min_repetition = min_repetition
-  )
+    # test the maximum value of coordinated time_deltas
+    delta_coord_max <- max(simulated_result[simulated_result$coordinated == TRUE, ]$time_delta)
+    testthat::expect_lte(delta_coord_max, time_window)
+
+    # test number of non coordinated users
+    users_noncoord <- unique(c(simulated_result[simulated_result$coordinated == FALSE, ]$id_user,
+                            simulated_result[simulated_result$coordinated == FALSE, ]$id_user_y))
+
+    testthat::expect_equal(length(users_noncoord), n_users_noncoord)
 
 
-  result_stats <- group_stats(result)
-  simulated_stats <- group_stats(simulated_result)
-  result_stats_users <- user_stats(result)
-  simulated_stats_users <- user_stats(simulated_result)
+    simulated_result <- simulated_result[coordinated == TRUE]
+    simulated_result <- simulated_result[, coordinated := NULL]
+
+    result <- detect_coordinated_groups(sim[[1]],
+      time_window = time_window,
+      min_repetition = min_repetition
+    )
+
+    result_stats <- group_stats(result)
+    simulated_stats <- group_stats(simulated_result)
+    result_stats_users <- user_stats(result)
+    simulated_stats_users <- user_stats(simulated_result)
+
 
   return(list(
     result_stats,
@@ -76,7 +89,7 @@ test_that("simulation is possible with random parameters", {
     min_repetition <- sample(1:10, size = 1)
     time_window <- sample(1:60, size = 1)
 
-    sim <- simulate_data(
+    sim <- sim_test(
       n_users_coord = n_users_coord,
       n_users_noncoord = n_users_noncoord,
       n_objects = n_objects,
@@ -84,26 +97,119 @@ test_that("simulation is possible with random parameters", {
       time_window = time_window
     )
 
-    simulated_result <- data.table(sim[[2]])
-    # test the minimum value of uncoordinated time_deltas
-    delta_uncoord_min <- min(simulated_result[simulated_result$coordinated == FALSE, ]$time_delta)
-    testthat::expect_gt(delta_uncoord_min, time_window)
 
-    # test number of coordinated users
-    users_coord <- unique(c(simulated_result[simulated_result$coordinated == TRUE, ]$id_user,
-                            simulated_result[simulated_result$coordinated == TRUE, ]$id_user_y))
+    expect_equal(sim[[1]], sim[[2]])
+    expect_equal(sim[[3]], sim[[4]])
 
-    testthat::expect_equal(length(users_coord), n_users_coord)
 
-    # test the maximum value of coordinated time_deltas
-    delta_coord_max <- max(simulated_result[simulated_result$coordinated == TRUE, ]$time_delta)
-    testthat::expect_lte(delta_coord_max, time_window)
+  }
+})
 
-    # test number of non coordinated users
-    users_noncoord <- unique(c(simulated_result[simulated_result$coordinated == FALSE, ]$id_user,
-                            simulated_result[simulated_result$coordinated == FALSE, ]$id_user_y))
 
-    testthat::expect_equal(length(users_noncoord), n_users_noncoord)
+test_that("balanced increase in number of users", {
+  # increasing number of users
+  # fails with 12 users (6 coord + 6 non-coord)
+  for (i in 2:6) {
+    n_users_coord <- i
+    n_users_noncoord <- i
+    n_objects <- 5
+    min_repetition <- 3
+    time_window <- 10
+
+    sim <- sim_test(
+      n_users_coord = n_users_coord,
+      n_users_noncoord = n_users_noncoord,
+      n_objects = n_objects,
+      min_repetition = min_repetition,
+      time_window = time_window
+    )
+
+
+    expect_equal(sim[[1]], sim[[2]])
+    expect_equal(sim[[3]], sim[[4]])
+
+
+  }
+})
+
+
+test_that("unbalanced increase in number of users: A", {
+  # increasing number of users
+  # Fails at 12 (4 coord, 8 non-coord)
+  for (i in 2:4) {
+    n_users_coord <- i
+    n_users_noncoord <- i + i
+    n_objects <- 5
+    min_repetition <- 3
+    time_window <- 10
+
+    sim <- sim_test(
+      n_users_coord = n_users_coord,
+      n_users_noncoord = n_users_noncoord,
+      n_objects = n_objects,
+      min_repetition = min_repetition,
+      time_window = time_window
+    )
+
+
+    expect_equal(sim[[1]], sim[[2]])
+    expect_equal(sim[[3]], sim[[4]])
+
+  }
+})
+
+
+
+test_that("unbalanced increase in number of users: B", {
+  # increasing number of users
+  # Fails at 21 (14 coord, 7 non-coord)
+  for (i in 2:7) {
+    n_users_coord <- i + i
+    n_users_noncoord <- i
+    n_objects <- 5
+    min_repetition <- 3
+    time_window <- 10
+
+    sim <- sim_test(
+      n_users_coord = n_users_coord,
+      n_users_noncoord = n_users_noncoord,
+      n_objects = n_objects,
+      min_repetition = min_repetition,
+      time_window = time_window
+    )
+
+
+    expect_equal(sim[[1]], sim[[2]])
+    expect_equal(sim[[3]], sim[[4]])
+
+
+  }
+})
+
+
+test_that("increase in number of objects", {
+  # increasing number of users
+  # passes with constant number of users (5, 5)
+  # passes with increasing number of uncoordinated users (i + i)
+  # fails with increasing number of coordinated users (i + i)
+  for (i in 2:10) {
+    n_users_coord <- 5
+    n_users_noncoord <- 5
+    n_objects <- i
+    min_repetition <- 3
+    time_window <- 10
+
+    sim <- sim_test(
+      n_users_coord = n_users_coord,
+      n_users_noncoord = n_users_noncoord,
+      n_objects = n_objects,
+      min_repetition = min_repetition,
+      time_window = time_window
+    )
+
+
+    expect_equal(sim[[1]], sim[[2]])
+    expect_equal(sim[[3]], sim[[4]])
 
 
   }
