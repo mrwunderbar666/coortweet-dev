@@ -68,9 +68,7 @@ simulate_data <- function(
         dimnames = list(user_IDs_coord, user_IDs_coord)
     )
 
-    coord_matrix[upper.tri(coord_matrix)] <- sample(min_repetition:(min_repetition * 2),
-        size = sum(upper.tri(coord_matrix)), replace = TRUE
-    )
+    coord_matrix[upper.tri(coord_matrix)] <- rpois(sum(upper.tri(coord_matrix)), 1) + min_repetition
 
     # to data.frame
     coord_matrix[lower.tri(coord_matrix)] <- NA
@@ -96,12 +94,8 @@ simulate_data <- function(
         dimnames = list(user_IDs_noncoord, user_IDs_noncoord)
     )
 
-    # HERE: could be a problem.
-    # the range 1:10 is arbitrary,
-    # rather have a sampling from a poisson distribution
-    noncoord_matrix[upper.tri(noncoord_matrix)] <- sample(1:10,
-        size = sum(upper.tri(noncoord_matrix)), replace = TRUE
-    )
+    # rather have a sample from a poisson distribution
+    noncoord_matrix[upper.tri(noncoord_matrix)] <- rpois(sum(upper.tri(noncoord_matrix)), 2) + 1
 
     # to data.frame
     noncoord_matrix[lower.tri(noncoord_matrix)] <- NA
@@ -137,12 +131,13 @@ simulate_data <- function(
 
     sampling_interval <- time_window + 1 # the sampling interval is equal to time_window + n to avoid overlaps
     indices <- seq(from = 1, to = length(timestamps_coord), by = sampling_interval) # generate the indices
-    indices <- indices[1:nrow(df_coord)]
+    # get a random sample from the indices
+    indices <- sample(indices, size = nrow(df_coord))
     df_coord$share_time_A <- timestamps_coord[indices] # extract the sampled values and assign to the first set of shares
 
     # add share time to B adding number of seconds < time_interval
-    noise <- time_window - sample.int(time_window, nrow(df_coord), replace = TRUE)
-    df_coord$share_time_B <- df_coord$share_time_A + noise
+    delta <- sample(0:time_window, nrow(df_coord), replace = TRUE)
+    df_coord$share_time_B <- df_coord$share_time_A + delta
 
     df_coord$delta <- abs(df_coord$share_time_A - df_coord$share_time_B)
 
@@ -154,7 +149,8 @@ simulate_data <- function(
 
     sampling_interval <- time_window * 3 # the sampling interval is equal to 3*time_window
     indices <- seq(from = 1, to = length(timestamps_noncoord), by = sampling_interval) # generate the indices
-    indices <- indices[1:nrow(df_noncoord)]
+    # maybe is better to sample these randomly
+    indices <- sample(indices, size = nrow(df_noncoord))
     df_noncoord$share_time_A <- timestamps_noncoord[indices]
 
     # the noise is equal to 1 + time_window + noise [0-time_window] and ensure the difference between timestamps is > time_window
