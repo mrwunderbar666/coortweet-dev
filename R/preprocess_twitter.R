@@ -7,7 +7,7 @@
 #' @return a list with 5 data.tables: tweets (contains all tweets and their meta-data), referenced (information on referenced tweets), urls (all urls mentioned in tweets), mentions (other users mentioned in tweets), hashtags (hashtags mentioned in tweets)
 #'
 #' @import data.table
-#' @import tidytable
+#' @importFrom tidytable unnest
 #' @importFrom lubridate as_datetime
 #' @importFrom stringi stri_split_fixed
 #'
@@ -117,7 +117,7 @@ preprocess_tweets <- function(tweets) {
 #' @return a data.table with reformatted user data
 #'
 #' @import data.table
-#' @import tidytable
+#' @importFrom tidytable unnest
 #'
 #' @export
 #'
