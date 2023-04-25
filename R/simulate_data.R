@@ -12,6 +12,7 @@
 #' and the output table of the same detect_coordinated_groups function and columns: `object_id`, `id_user`, `id_user_y`, `content_id`, `content_id_y`, `time_delta`.
 #'
 #' @importFrom stringi stri_rand_strings
+#' @importFrom stats, na.omit rpois
 #'
 #' @export
 #'
@@ -139,10 +140,10 @@ simulate_data <- function(
     # non-coordinated timestamps:
     # users could share the same content with an arbitrary time_delta
     # it has to be higher than time_window, so we roughly make it twice as large
-    # minimum is time_window + 1, maximum is 2x time_window + 1 
+    # minimum is time_window + 1, maximum is 2x time_window + 1
     noise <- 1 + time_window + sample.int(time_window, nrow(df_noncoord), replace = TRUE)
     # the sampling interval is needs to be larger than the noise
-    sampling_interval <- max(noise) * 2 
+    sampling_interval <- max(noise) * 2
 
     # extract timestamps from coordinated timestamp set and with intervals exceeding time_window
     # Uncoordinated users start their time stamps at the last timestamp of the coordinated users
