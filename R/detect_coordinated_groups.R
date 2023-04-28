@@ -19,10 +19,9 @@
 #' @param time_window the number of seconds within which shared contents
 #' are to be considered as coordinated (default to 10 seconds).
 #'
-#' @param min_repetition the minimum number of published coordinated
-#' contents necessary for a user to be included it in the coordinated
-#' network. (defaults to 2)
-#'
+#' @param min_repetition the minimum number of repeated coordinated 
+#' action to define two users as coordinated (defaults to 2)
+#' 
 #' @return a data.table with ids of coordinated contents. Columns:
 #' `object_id`, `id_user`, `id_user_y`, `content_id`, `content_id_y`,
 #' `timedelta`

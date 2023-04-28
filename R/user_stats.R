@@ -1,6 +1,11 @@
 #' user_stats
 #'
-#' Calculate user statistics: total posts shared, average time delta
+#' @description
+#' Calculate user statistics: total posts shared, average time delta.
+#' 
+#' @details 
+#' With this helper function you get a summary of the users, who
+#' share coordinated content.
 #' High number of posts shared and low average time delta are indicators for
 #' highly coordinated (potentially automated) user behaviour.
 #'

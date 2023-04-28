@@ -13,20 +13,33 @@ simulate_data(
 )
 }
 \arguments{
-\item{n_users_coord}{the desired number of coordinated users}
+\item{n_users_coord}{the desired number of coordinated users.}
 
-\item{n_users_noncoord}{the desired number of non-coordinated users}
+\item{n_users_noncoord}{the desired number of non-coordinated users.}
 
-\item{n_objects}{the desired number of objects}
+\item{n_objects}{the desired number of objects.}
 
-\item{min_repetition}{the minimum number of repeated coordinated action to define two user as coordinated}
+\item{min_repetition}{the minimum number of repeated coordinated
+action to define two user as coordinated.}
 
-\item{time_window}{the time window of coordination}
+\item{time_window}{the time window of coordination.}
 }
 \value{
-a list with two data frames: a data frame with the columns required by the function detect_coordinated_groups (\code{object_id}, \code{id_user}, \code{content_id}, \code{timestamp_share})
-and the output table of the same detect_coordinated_groups function and columns: \code{object_id}, \code{id_user}, \code{id_user_y}, \code{content_id}, \code{content_id_y}, \code{time_delta}.
+a list with two data frames: a data frame
+with the columns required by the function detect_
+coordinated_groups (\code{object_id}, \code{id_user}, \code{content_id}, \code{timestamp_share})
+and the output table of the same
+\link{detect_coordinated_groups} function and columns:
+\code{object_id}, \code{id_user}, \code{id_user_y},
+\code{content_id}, \code{content_id_y}, \code{time_delta}.
 }
 \description{
-Create a simulated input and output of detect_coordinated_groups function
+Create a simulated input and output of
+\link{detect_coordinated_groups} function.
+}
+\details{
+This function generates a simulated dataset with fixed
+numbers for coordinated users, uncoordinated users, and
+shared objects. You can set minimum repetition and time window
+and the coordinated users will "act" randomly within these restrictions.
 }

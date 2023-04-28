@@ -1,10 +1,24 @@
 #' reshape_tweets
 #'
-#' @description 
+#' @description
 #' Reshape twitter data for coordination detection.
-#' 
 #'
-#' @param tweets a pre-processed list of twitter data (output of \link{preprocess_twitter})
+#' @details
+#' This function takes the pre-processed Twitter data
+#' (output of \link{preprocess_twitter}) and reshapes it
+#' for coordination detection (\link{detect_coordinated_groups}).
+#' You can choose the intent for reshaping the data. Use
+#' `"retweets"` to detect coordinated retweeting behaviour;
+#' `"hashtags"` for coordinated usage of hashtags;
+#' `"urls"` to detect coordinated link sharing behaviour;
+#' `"urls_domain"` to detect coordinated link sharing behaviour
+#' at the domain level.
+#' The output of this function is a reshaped `data.table` that
+#' can be passed to \link{detect_coordinated_groups}.
+#'
+#' @param tweets a named list of Twitter data
+#' (output of \link{preprocess_twitter})
+#'
 #' @param intent the desired intent for analysis.
 #'
 #' @return a reshaped data.table
@@ -22,12 +36,19 @@ reshape_tweets <- function(
         stop("Provided data probably not preprocessed yet.")
     }
 
-    required_elements <- c("tweets", "referenced", "urls", "mentions", "hashtags")
+    required_elements <- c(
+        "tweets",
+        "referenced",
+        "urls",
+        "mentions",
+        "hashtags"
+    )
 
     for (el in required_elements) {
         if (!el %in% names(tweets)) {
             stop(
-                paste("Provided data does not have the right structure. Please ensure the list contains:", el)
+                paste("Provided data does not have the right structure.
+                Please ensure the list contains:", el)
             )
         }
     }
@@ -36,10 +57,10 @@ reshape_tweets <- function(
 
     if (intent == "retweets") {
         # Mapping overview
-        # referenced_tweet_id -> object_id
-        # author_id -> id_user
-        # tweet_id -> content_id:
-        # created_timestamp -> timestamp_share
+        # referenced_tweet_id --> object_id
+        # author_id --> id_user
+        # tweet_id --> content_id:
+        # created_timestamp --> timestamp_share
 
         # filter only mentions that start at position 3
         # these are direct retweets:
@@ -59,74 +80,88 @@ reshape_tweets <- function(
         original_tweets <- tweets$tweets[filt]
         original_tweets[, referenced_tweet_id := tweet_id]
 
-        tweet_cols <- c("referenced_tweet_id", "author_id", "tweet_id", "created_timestamp")
-        retweets <- rbind(retweets[, ..tweet_cols], original_tweets[, ..tweet_cols])
+        tweet_cols <- c(
+            "referenced_tweet_id",
+            "author_id",
+            "tweet_id",
+            "created_timestamp"
+        )
+
+        retweets <- rbind(
+            retweets[, ..tweet_cols],
+            original_tweets[, ..tweet_cols]
+        )
 
         data.table::setnames(retweets, tweet_cols, output_cols)
         data.table::setindex(retweets, object_id, id_user)
 
         return(retweets)
     } else if (intent == "hashtags") {
-      # Mapping overview
-      # hashtag -> object_id
-      # author_id -> id_user
-      # tweet_id -> content_id:
-      # created_timestamp -> timestamp_share
+        # Mapping overview
+        # hashtag --> object_id
+        # author_id --> id_user
+        # tweet_id --> content_id:
+        # created_timestamp --> timestamp_share
 
-      # join meta data with hashtags table
-      hashtags <- tweets$tweets[tweets$hashtags, on = "tweet_id"]
+        # join meta data with hashtags table
+        hashtags <- tweets$tweets[tweets$hashtags, on = "tweet_id"]
 
-      tweet_cols <- c("tag", "author_id", "tweet_id", "created_timestamp")
-      hashtags <- hashtags[, ..tweet_cols]
+        tweet_cols <- c("tag", "author_id", "tweet_id", "created_timestamp")
+        hashtags <- hashtags[, ..tweet_cols]
 
-      data.table::setnames(hashtags, tweet_cols, output_cols)
-      data.table::setindex(hashtags, object_id, id_user)
+        data.table::setnames(hashtags, tweet_cols, output_cols)
+        data.table::setindex(hashtags, object_id, id_user)
 
-      return(hashtags)
+        return(hashtags)
     } else if (intent == "urls") {
-      # Mapping overview
-      # expanded_url -> object_id
-      # author_id -> id_user
-      # tweet_id -> content_id:
-      # created_timestamp -> timestamp_share
+        # Mapping overview
+        # expanded_url --> object_id
+        # author_id --> id_user
+        # tweet_id --> content_id:
+        # created_timestamp --> timestamp_share
 
-      # remove Twitter's internal URLs
-      filt <- startsWith(tweets$urls$expanded_url, "https://twitter.com")
-      urls <- tweets$urls[!filt]
+        # remove Twitter's internal URLs
+        filt <- startsWith(tweets$urls$expanded_url, "https://twitter.com")
+        urls <- tweets$urls[!filt]
 
-      # join meta data with urls table
-      urls <- tweets$tweets[urls, on = "tweet_id"]
+        # join meta data with urls table
+        urls <- tweets$tweets[urls, on = "tweet_id"]
 
-      tweet_cols <- c("expanded_url", "author_id", "tweet_id", "created_timestamp")
-      urls <- urls[, ..tweet_cols]
+        tweet_cols <- c(
+            "expanded_url",
+            "author_id",
+            "tweet_id",
+            "created_timestamp"
+        )
 
-      data.table::setnames(urls, tweet_cols, output_cols)
-      data.table::setindex(urls, object_id, id_user)
+        urls <- urls[, ..tweet_cols]
 
-      return(urls)
+        data.table::setnames(urls, tweet_cols, output_cols)
+        data.table::setindex(urls, object_id, id_user)
+
+        return(urls)
     } else if (intent == "urls_domains") {
-      # Mapping overview
-      # domain -> object_id
-      # author_id -> id_user
-      # tweet_id -> content_id:
-      # created_timestamp -> timestamp_share
+        # Mapping overview
+        # domain --> object_id
+        # author_id --> id_user
+        # tweet_id --> content_id:
+        # created_timestamp --> timestamp_share
 
-      # remove Twitter's internal URLs
-      filt <- startsWith(tweets$urls$expanded_url, "https://twitter.com")
-      domains <- tweets$urls[!filt]
+        # remove Twitter's internal URLs
+        filt <- startsWith(tweets$urls$expanded_url, "https://twitter.com")
+        domains <- tweets$urls[!filt]
 
-      # join meta data with urls table
-      domains <- tweets$tweets[domains, on = "tweet_id"]
+        # join meta data with urls table
+        domains <- tweets$tweets[domains, on = "tweet_id"]
 
-      tweet_cols <- c("domain", "author_id", "tweet_id", "created_timestamp")
-      domains <- domains[, ..tweet_cols]
+        tweet_cols <- c("domain", "author_id", "tweet_id", "created_timestamp")
+        domains <- domains[, ..tweet_cols]
 
-      data.table::setnames(domains, tweet_cols, output_cols)
-      data.table::setindex(domains, object_id, id_user)
+        data.table::setnames(domains, tweet_cols, output_cols)
+        data.table::setindex(domains, object_id, id_user)
 
-      return(domains)
-    }
-    else {
+        return(domains)
+    } else {
         .NotYetImplemented()
     }
 }
