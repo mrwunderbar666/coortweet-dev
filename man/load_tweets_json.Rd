@@ -13,5 +13,15 @@ load_tweets_json(data_dir)
 a data.table with all tweets loaded
 }
 \description{
-Load Tweets stored in JSON files. Wrapper of the function \link[RcppSimdJson]{fload}
+Very efficient and fast way to load tweets stored in JSON files.
+Wrapper of the function \link[RcppSimdJson]{fload}
+}
+\details{
+This function is optimized to load tweets that were
+collected using the academicTwittr Package (Twitter API V2).
+It uses RcppSimdJson to load the JSON files, which is extremely
+fast and efficient. It returns the twitter data as is. The only changes
+are that the function renames the \code{id} of tweets to \code{tweet_id}, and
+it also deduplicates the data (by \code{tweet_id}).
+The function expects that the individual JSON files start with \code{data}.
 }

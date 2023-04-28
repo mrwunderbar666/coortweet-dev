@@ -10,8 +10,18 @@ load_twitter_users_json(data_dir)
 \item{data_dir}{string that leads to the directory containing JSON files}
 }
 \value{
-a data.table with all tweets loaded
+a data.table with all users loaded
 }
 \description{
-Load Twitter User information stored in JSON files. Wrapper of the function \link[RcppSimdJson]{fload}
+Very efficient and fast way to load user information from JSON files.
+Wrapper of the function \link[RcppSimdJson]{fload}
+
+#' @details
+This function is optimized to load user data JSON files that were
+collected using the academicTwittr Package (Twitter API V2).
+It uses RcppSimdJson to load the JSON files, which is extremely
+fast and efficient. It returns the user data as is. The only changes
+are that the function renames the \code{id} of tweets to \code{user_id}, and
+it also deduplicates the data (by \code{user_id}).
+The function expects that the individual JSON files start with \code{user}.
 }

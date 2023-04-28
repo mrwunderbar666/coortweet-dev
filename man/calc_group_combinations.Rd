@@ -7,16 +7,17 @@
 calc_group_combinations(group, time_window = 10)
 }
 \arguments{
-\item{group}{a data.table group with the columns:
+\item{group}{A data.table group with the columns:
 content_id, id_user, timestamp_share}
 
-\item{time_window}{Default to 10.
-A integer with the time window of coordination.}
+\item{time_window}{An integer with the time window of coordination.
+Default to 10.}
 }
 \value{
 A data.table with coordinated contents.
 Columns: content_id, id_user, content_id_y, id_user_y, time_delta
 }
 \description{
-calc_group_combinations
+Private function that calculates the time differences
+between all possible combinations in the group.
 }

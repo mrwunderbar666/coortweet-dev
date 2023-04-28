@@ -7,11 +7,35 @@
 preprocess_tweets(tweets)
 }
 \arguments{
-\item{tweets}{a data.table with the (nested) columns: "entities", "public_metrics", "tweet_id", "created_at"}
+\item{tweets}{a data.table to unnest. Twitter data loaded
+with \link{load_tweets_json}`.}
 }
 \value{
-a list with 5 data.tables: tweets (contains all tweets and their meta-data), referenced (information on referenced tweets), urls (all urls mentioned in tweets), mentions (other users mentioned in tweets), hashtags (hashtags mentioned in tweets)
+a named \code{list} with 5 data.tables:
+tweets (contains all tweets and their meta-data),
+referenced (information on referenced tweets),
+urls (all urls mentioned in tweets),
+mentions (other users mentioned in tweets),
+hashtags (hashtags mentioned in tweets)
 }
 \description{
-Reformat nested twitter data (retrieved from Twitter v2 API); spreads out columns and reformats nested data.frame (data.table) to unnested sub-data.frames. All output is in long-format
+Reformat nested Twitter data (retrieved from Twitter V2 API).
+Spreads out columns and reformats nested a \code{data.table} to
+a named list of unnested data.tables.
+All output is in long-format.
+}
+\details{
+Restructure your nested Twitter data that you loaded with
+\link{load_tweets_json}. The function unnests the following columns:
+\code{public_metrics} (likes, retweets, quotes),
+\code{referenced_tweets} (IDs of "replied to" and "retweet"),
+\code{entities} (hashtags, URLs, other users).
+Returns a named list with several \code{data.tables},
+each \code{data.table} represents one aspect of the nested data.
+The function also expects that the following additional
+columns are present in the \code{data.table}:
+\code{created_at}, \code{tweet_id}, \code{author_id},
+\code{conversation_id}, \code{possibly_sensitive}, \code{lang}, \code{text},
+\code{in_reply_to_user_id}.
+Implicitely dropped columns: \code{edit_history_tweet_ids}
 }

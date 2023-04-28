@@ -10,7 +10,7 @@ reshape_tweets(
 )
 }
 \arguments{
-\item{tweets}{a pre-processed list of twitter data (output of preprocess_twitter())}
+\item{tweets}{a pre-processed list of twitter data (output of \link{preprocess_twitter})}
 
 \item{intent}{the desired intent for analysis.}
 }
@@ -18,5 +18,5 @@ reshape_tweets(
 a reshaped data.table
 }
 \description{
-Reshape twitter data for coordination detection
+Reshape twitter data for coordination detection.
 }

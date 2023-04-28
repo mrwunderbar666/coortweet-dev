@@ -1,8 +1,10 @@
 #' reshape_tweets
 #'
-#' Reshape twitter data for coordination detection
+#' @description 
+#' Reshape twitter data for coordination detection.
+#' 
 #'
-#' @param tweets a pre-processed list of twitter data (output of preprocess_twitter())
+#' @param tweets a pre-processed list of twitter data (output of \link{preprocess_twitter})
 #' @param intent the desired intent for analysis.
 #'
 #' @return a reshaped data.table

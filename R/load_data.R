@@ -1,6 +1,17 @@
 #' load_tweets_json
 #'
-#' Load Tweets stored in JSON files. Wrapper of the function \link[RcppSimdJson]{fload}
+#' @description
+#' Very efficient and fast way to load tweets stored in JSON files.
+#' Wrapper of the function \link[RcppSimdJson]{fload}
+#'
+#' @details
+#' This function is optimized to load tweets that were
+#' collected using the academicTwittr Package (Twitter API V2).
+#' It uses RcppSimdJson to load the JSON files, which is extremely
+#' fast and efficient. It returns the twitter data as is. The only changes
+#' are that the function renames the `id` of tweets to `tweet_id`, and
+#' it also deduplicates the data (by `tweet_id`).
+#' The function expects that the individual JSON files start with `data`.
 #'
 #' @param data_dir string that leads to the directory containing JSON files
 #'
@@ -41,11 +52,22 @@ load_tweets_json <- function(data_dir) {
 
 #' load_twitter_users_json
 #'
-#' Load Twitter User information stored in JSON files. Wrapper of the function \link[RcppSimdJson]{fload}
+#' @description
+#' Very efficient and fast way to load user information from JSON files.
+#' Wrapper of the function \link[RcppSimdJson]{fload}
+#'
+#' #' @details
+#' This function is optimized to load user data JSON files that were
+#' collected using the academicTwittr Package (Twitter API V2).
+#' It uses RcppSimdJson to load the JSON files, which is extremely
+#' fast and efficient. It returns the user data as is. The only changes
+#' are that the function renames the `id` of tweets to `user_id`, and
+#' it also deduplicates the data (by `user_id`).
+#' The function expects that the individual JSON files start with `user`.
 #'
 #' @param data_dir string that leads to the directory containing JSON files
 #'
-#' @return a data.table with all tweets loaded
+#' @return a data.table with all users loaded
 #'
 #' @import RcppSimdJson
 #' @import data.table

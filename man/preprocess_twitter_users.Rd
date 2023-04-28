@@ -7,11 +7,17 @@
 preprocess_twitter_users(users)
 }
 \arguments{
-\item{users}{a data.table with unformatted (nested user data)}
+\item{users}{a data.table with unformatted (nested user data).}
 }
 \value{
-a data.table with reformatted user data
+a data.table with reformatted user data.
 }
 \description{
-Reformat nested twitter userdata (retrieved from Twitter v2 API); spreads out columns and reformats nested data.frame (data.table) to long format
+Reformat nested twitter user data (retrieved from Twitter v2 API).
+Spreads out columns and reformats nested \code{data.table} to long format.
+}
+\details{
+Take the Twitter user data that you loaded with
+\link{load_twitter_users_json} and unnests the
+following columns: \code{public_metrics} and \code{entities}.
 }

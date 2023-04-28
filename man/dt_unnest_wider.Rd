@@ -16,10 +16,8 @@ dt_unnest_wider(dt, columns, keep = FALSE, simplify = TRUE)
 \item{simplify}{Defaults to TRUE. Try to simplify resulting columns}
 }
 \description{
-Utility function for data.table.
+Private utility function for \code{data.table}.
 Unnest a column into wide format. Takes the first 1000 rows as reference!
 Tries to emulate the functionality of tidyr::unnest_wider()
-}
-\details{
-Current implementation probably very slow.
+Current implementation is probably very slow.
 }

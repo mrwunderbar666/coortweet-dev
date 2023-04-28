@@ -1,10 +1,35 @@
 #' preprocess_tweets
 #'
-#' Reformat nested twitter data (retrieved from Twitter v2 API); spreads out columns and reformats nested data.frame (data.table) to unnested sub-data.frames. All output is in long-format
+#' @description
+#' Reformat nested Twitter data (retrieved from Twitter V2 API).
+#' Spreads out columns and reformats nested a `data.table` to
+#' a named list of unnested data.tables.
+#' All output is in long-format.
 #'
-#' @param tweets a data.table with the (nested) columns: "entities", "public_metrics", "tweet_id", "created_at"
+#' @details
+#' Restructure your nested Twitter data that you loaded with
+#' \link{load_tweets_json}. The function unnests the following columns:
+#' `public_metrics` (likes, retweets, quotes),
+#' `referenced_tweets` (IDs of "replied to" and "retweet"),
+#' `entities` (hashtags, URLs, other users).
+#' Returns a named list with several `data.tables`,
+#' each `data.table` represents one aspect of the nested data.
+#' The function also expects that the following additional
+#' columns are present in the `data.table`:
+#' `created_at`, `tweet_id`, `author_id`,
+#' `conversation_id`, `possibly_sensitive`, `lang`, `text`,
+#' `in_reply_to_user_id`.
+#' Implicitely dropped columns: `edit_history_tweet_ids`
 #'
-#' @return a list with 5 data.tables: tweets (contains all tweets and their meta-data), referenced (information on referenced tweets), urls (all urls mentioned in tweets), mentions (other users mentioned in tweets), hashtags (hashtags mentioned in tweets)
+#' @param tweets a data.table to unnest. Twitter data loaded
+#' with \link{load_tweets_json}`.
+#'
+#' @return a named `list` with 5 data.tables:
+#' tweets (contains all tweets and their meta-data),
+#' referenced (information on referenced tweets),
+#' urls (all urls mentioned in tweets),
+#' mentions (other users mentioned in tweets),
+#' hashtags (hashtags mentioned in tweets)
 #'
 #' @import data.table
 #' @importFrom tidytable unnest
@@ -23,7 +48,9 @@ preprocess_tweets <- function(tweets) {
 
     for (cname in required_cols) {
         if (!cname %in% colnames(tweets)) {
-            stop("Columns or their names are incorrect. Ensure your data has the columns: `entities`, `public_metrics`, `tweet_id`, `created_at`")
+            stop("Columns or their names are incorrect.
+            Ensure your data has the columns:
+            entities, public_metrics, tweet_id, created_at")
         }
     }
 
@@ -50,7 +77,10 @@ preprocess_tweets <- function(tweets) {
     Referenced <- tidytable::unnest(tweets, referenced_tweets)
     Referenced_cols <- c("tweet_id", "id", "type")
     Referenced <- data.table::as.data.table(Referenced[, ..Referenced_cols])
-    data.table::setnames(Referenced, c("tweet_id", "referenced_tweet_id", "type"))
+    data.table::setnames(
+        Referenced,
+        c("tweet_id", "referenced_tweet_id", "type")
+    )
 
     data.table::setindex(Referenced, tweet_id, referenced_tweet_id)
 
@@ -100,21 +130,29 @@ preprocess_tweets <- function(tweets) {
     rm(entities, tweets)
     gc()
 
-    return(list(tweets = Tweets,
+    return(list(
+        tweets = Tweets,
         referenced = Referenced,
         urls = URLs,
         mentions = Mentions,
-        hashtags = Hashtags)
-        )
+        hashtags = Hashtags
+    ))
 }
 
 #' preprocess_twitter_users
 #'
-#' Reformat nested twitter userdata (retrieved from Twitter v2 API); spreads out columns and reformats nested data.frame (data.table) to long format
+#' @description
+#' Reformat nested twitter user data (retrieved from Twitter v2 API).
+#' Spreads out columns and reformats nested `data.table` to long format.
 #'
-#' @param users a data.table with unformatted (nested user data)
+#' @details
+#' Take the Twitter user data that you loaded with
+#' \link{load_twitter_users_json} and unnests the
+#' following columns: `public_metrics` and `entities`.
 #'
-#' @return a data.table with reformatted user data
+#' @param users a data.table with unformatted (nested user data).
+#'
+#' @return a data.table with reformatted user data.
 #'
 #' @import data.table
 #' @importFrom tidytable unnest
@@ -132,7 +170,9 @@ preprocess_twitter_users <- function(users) {
 
     for (cname in required_cols) {
         if (!cname %in% colnames(users)) {
-            stop("Columns or their names are incorrect. Ensure your data has the columns: `username`, `user_id`")
+            stop("Columns or their names are incorrect.
+            Ensure your data has the columns:
+            username, user_id")
         }
     }
 
@@ -156,7 +196,10 @@ preprocess_twitter_users <- function(users) {
         "entities_url_urls_end"
     )
     urls <- urls[, ..urls_cols]
-    data.table::setnames(urls, urls_cols, c("user_id", "expanded_url", "display_url", "url_start", "url_end"))
+    data.table::setnames(
+        urls, urls_cols,
+        c("user_id", "expanded_url", "display_url", "url_start", "url_end")
+    )
 
     # extract domain name
     urls[, domain := gsub("https?://", "", expanded_url)]
@@ -173,11 +216,11 @@ preprocess_twitter_users <- function(users) {
 
 #' dt_unnest_wider
 #'
-#' Utility function for data.table.
+#' @description
+#' Private utility function for `data.table`.
 #' Unnest a column into wide format. Takes the first 1000 rows as reference!
 #' Tries to emulate the functionality of tidyr::unnest_wider()
-#'
-#' Current implementation probably very slow.
+#' Current implementation is probably very slow.
 #'
 #' @param dt A data.table as input
 #' @param columns the name(s) of the column(s) to be unnested (as string)
@@ -208,13 +251,23 @@ dt_unnest_wider <- function(dt,
 
         for (subcol in cols) {
             new_col_name <- paste(colname, subcol, sep = "_")
-            dt[, eval(new_col_name) := lapply(dt[[colname]], "[[", eval(subcol))]
+            dt[
+                ,
+                eval(new_col_name) := lapply(
+                    dt[[colname]],
+                    "[[", eval(subcol)
+                )
+            ]
 
             if (simplify && is.list(dt[[new_col_name]])) {
                 # if the lists in the column only have one element each,
                 # then replace the column with an unlisted vector
-                if (length(unlist(dt[[new_col_name]])) == length(dt[[new_col_name]])) {
-                    dt[, eval(new_col_name) := unlist(.SD), .SDcols = c(new_col_name)]
+                if (length(unlist(dt[[new_col_name]])) ==
+                    length(dt[[new_col_name]])) {
+                    dt[,
+                        eval(new_col_name) := unlist(.SD),
+                        .SDcols = c(new_col_name)
+                    ]
                 }
             }
         }
