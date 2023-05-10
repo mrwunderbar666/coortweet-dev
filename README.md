@@ -1,4 +1,7 @@
-# CooRTweet (DEV VERSION)
+# [LINK TO MAIN REPOSITORY](https://github.com/nicolarighetti/CooRTweet) -> https://github.com/nicolarighetti/CooRTweet
+
+
+# Archived dev version
 
 ## How to use new functionality
 
